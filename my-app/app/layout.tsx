@@ -1,20 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DemoProvider } from "@/components/DemoProvider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Longevity Marketplace",
-  description: "Made for CSEHackathon", //sdfghjksdfghjkdfghjkl
+  title: { default: "Evermark — Products designed to last", template: "%s · Evermark" },
+  description: "Compare product longevity, repairability, warranties, and verified durability evidence.",
 };
 
 export default function RootLayout({
@@ -23,12 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
-        {children}
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full bg-[#f7f9f6] text-slate-900">
+        <DemoProvider>{children}</DemoProvider>
       </body>
     </html>
   );
