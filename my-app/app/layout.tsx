@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Longevity Marketplace",
-  description: "Made for CSEHackathon", //sdfghjksdfghjkdfghjkl
+  description: "Made for CSEHackathon", 
 };
 
 export default function RootLayout({
