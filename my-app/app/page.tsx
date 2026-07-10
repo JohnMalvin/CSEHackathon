@@ -1,5 +1,8 @@
-import React from "react";
+"use client";
+
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import ItemCard, { type Product } from "@/components/Itemcard";
 
 
 
@@ -38,13 +41,27 @@ function Icon({ name, className = "h-5 w-5" }: { name: IconName; className?: str
 
 const categories = ["Supplements", "Nutrition", "Sleep", "Fitness", "Mindfulness"];
 
-const products = [
+const products: Product[] = [
   { name: "Daily Greens", type: "Daily nutrition", price: "$44", color: "bg-[#dbe8c9]", accent: "bg-[#78945b]", label: "VITA / 01" },
   { name: "Deep Sleep", type: "Nightly support", price: "$38", color: "bg-[#d9dcef]", accent: "bg-[#626b96]", label: "VITA / 02" },
   { name: "Focus Flow", type: "Clarity blend", price: "$42", color: "bg-[#f3d9bd]", accent: "bg-[#cf815d]", label: "VITA / 03" },
 ];
 
 export default function LandingPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredProducts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    if (!query) return products;
+
+    return products.filter((product) =>
+      [product.name, product.type, product.label].some((value) =>
+        value.toLowerCase().includes(query),
+      ),
+    );
+  }, [searchQuery]);
+
   return (
     <main className="min-h-screen overflow-hidden bg-[#f7f5ef] text-[#173d2b]">
       <div className="bg-[#173d2b] px-4 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white sm:text-xs">
@@ -67,7 +84,7 @@ export default function LandingPage() {
         </nav>
 
         <div className="flex items-center gap-1 sm:gap-3">
-          <button className="rounded-full p-2.5 transition hover:bg-white" aria-label="Search"><Icon name="search" /></button>
+          <Link href="#product-search" className="rounded-full p-2.5 transition hover:bg-white" aria-label="Search"><Icon name="search" /></Link>
           <button className="hidden rounded-full p-2.5 transition hover:bg-white sm:block" aria-label="Account"><Icon name="user" /></button>
           <button className="relative rounded-full p-2.5 transition hover:bg-white" aria-label="Shopping bag">
             <Icon name="bag" />
@@ -139,22 +156,45 @@ export default function LandingPage() {
       </section>
 
       <section id="shop" className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-        <div className="mb-10 flex items-end justify-between gap-6">
+        <div className="mb-8 flex items-end justify-between gap-6">
           <div><p className="mb-3 text-xs font-black uppercase tracking-[.2em] text-[#e45e3b]">Community favourites</p><h2 className="text-4xl font-black tracking-[-.045em] sm:text-5xl">Start feeling better</h2></div>
           <Link href="#" className="hidden items-center gap-2 text-sm font-bold sm:flex">Shop all <Icon name="arrow" className="h-4 w-4" /></Link>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
-          {products.map((product, i) => (
-            <article key={product.name} className="group rounded-[2rem] bg-white p-3 shadow-[0_1px_0_rgba(23,61,43,.08)]">
-              <div className={`relative grid aspect-[4/3] place-items-center overflow-hidden rounded-[1.45rem] ${product.color}`}>
-                {i === 0 && <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-wider">Bestseller</span>}
-                <button className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/80 transition hover:bg-white" aria-label={`Save ${product.name}`}><Icon name="heart" className="h-4 w-4" /></button>
-                <div className={`flex h-[65%] w-[35%] rotate-6 flex-col items-center rounded-2xl ${product.accent} p-4 text-white shadow-2xl transition duration-500 group-hover:-rotate-3 group-hover:scale-105`}><span className="text-[8px] font-bold tracking-[.2em]">{product.label}</span><Icon name={i === 1 ? "sparkles" : "leaf"} className="my-auto h-10 w-10" /><span className="text-sm font-black">{product.name.toUpperCase()}</span></div>
-              </div>
-              <div className="flex items-start justify-between p-4"><div><p className="text-xs font-semibold text-[#173d2b]/50">{product.type}</p><h3 className="mt-1 text-lg font-black">{product.name}</h3></div><span className="text-sm font-black">{product.price}</span></div>
-            </article>
-          ))}
+
+        <div className="relative mb-8 max-w-2xl">
+          <Icon name="search" className="pointer-events-none absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-[#173d2b]/45" />
+          <input
+            id="product-search"
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search products, benefits, or categories..."
+            className="w-full rounded-full border border-[#173d2b]/15 bg-white py-4 pl-14 pr-6 text-sm font-semibold text-[#173d2b] shadow-[0_10px_35px_rgba(23,61,43,.06)] outline-none transition placeholder:font-medium placeholder:text-[#173d2b]/40 focus:border-[#173d2b]/40 focus:ring-4 focus:ring-[#dfff71]/60"
+            aria-label="Search products"
+          />
         </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {filteredProducts.map((product) => {
+            const productIndex = products.findIndex((item) => item.name === product.name);
+
+            return (
+              <ItemCard
+                key={product.name}
+                product={product}
+                isBestseller={productIndex === 0}
+                icon={productIndex === 1 ? "sparkles" : "leaf"}
+              />
+            );
+          })}
+        </div>
+        {filteredProducts.length === 0 && (
+          <div className="rounded-[2rem] border border-dashed border-[#173d2b]/20 bg-white/60 px-6 py-14 text-center">
+            <p className="text-lg font-black">No products found</p>
+            <p className="mt-2 text-sm text-[#173d2b]/60">Try a different product name or benefit.</p>
+            <button type="button" onClick={() => setSearchQuery("")} className="mt-5 rounded-full bg-[#173d2b] px-5 py-2.5 text-xs font-bold text-white transition hover:bg-[#24563e]">Clear search</button>
+          </div>
+        )}
       </section>
 
       <section id="why-vita" className="bg-[#173d2b] px-5 py-16 text-white sm:px-8 lg:px-12">
