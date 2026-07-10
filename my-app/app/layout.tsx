@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Comparator",
+  title: "Longevity Marketplace",
   description: "Made for CSEHackathon",
 };
 
